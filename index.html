@@ -57,35 +57,43 @@
         #about, #updates, #testimonials {
             background: rgba(30, 30, 30, 0.8);
         }
-        /* Chatbot styles */
-        #chatbot-container {
+        /* Chatbot Styles */
+        #chatbot-button {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 60px;
-            height: 60px;
             background-color: #007bff;
             color: white;
+            border: none;
+            padding: 15px;
             border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             cursor: pointer;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            font-size: 20px;
         }
-        #chatbot-container:hover {
-            background-color: #0056b3;
-        }
-        #chatbot-frame {
+        #chatbot-container {
             position: fixed;
-            bottom: 90px;
+            bottom: 80px;
             right: 20px;
             width: 350px;
             height: 500px;
-            border-radius: 12px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
             display: none;
+            overflow: hidden;
+            padding: 10px;
+        }
+        #chatbot-messages {
+            height: 80%;
+            overflow-y: auto;
+            border-bottom: 1px solid #ccc;
+            padding: 10px;
+        }
+        #chatbot-input {
+            width: 100%;
+            padding: 5px;
+            border: none;
+            border-top: 1px solid #ccc;
         }
     </style>
 </head>
@@ -127,21 +135,58 @@
         <p>&copy; 2025 Maharishi Nursing Home, Dharapuram</p>
     </footer>
     
-    <div id="chatbot-container">💬</div>
-    <iframe id="chatbot-frame" src="https://www.langflow.site/embed/YOUR_LANGFLOW_ID"></iframe>
+    <!-- Chatbot -->
+    <button id="chatbot-button">💬</button>
+    <div id="chatbot-container">
+        <div id="chatbot-messages"></div>
+        <input type="text" id="chatbot-input" placeholder="Type a message..." />
+    </div>
     
     <script>
-        document.getElementById('chatbot-container').addEventListener('click', function() {
-            const frame = document.getElementById('chatbot-frame');
-            if (frame.style.display === 'none' || frame.style.display === '') {
-                frame.style.display = 'block';
-            } else {
-                frame.style.display = 'none';
+        document.getElementById('chatbot-button').addEventListener('click', function() {
+            var chatbot = document.getElementById('chatbot-container');
+            chatbot.style.display = chatbot.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.getElementById('chatbot-input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                let inputField = document.getElementById('chatbot-input');
+                let userMessage = inputField.value;
+                if (!userMessage.trim()) return;
+                
+                let messagesDiv = document.getElementById('chatbot-messages');
+                let userDiv = document.createElement('div');
+                userDiv.textContent = "You: " + userMessage;
+                messagesDiv.appendChild(userDiv);
+                
+                let loadingDiv = document.createElement('div');
+                loadingDiv.textContent = "Bot: Thinking...";
+                messagesDiv.appendChild(loadingDiv);
+                
+                fetch("https://your-langflow-api.com/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: userMessage })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    messagesDiv.removeChild(loadingDiv);
+                    let botDiv = document.createElement('div');
+                    botDiv.textContent = "Bot: " + data.response;
+                    messagesDiv.appendChild(botDiv);
+                })
+                .catch(error => {
+                    messagesDiv.removeChild(loadingDiv);
+                    let errorDiv = document.createElement('div');
+                    errorDiv.textContent = "Bot: Error connecting to API";
+                    messagesDiv.appendChild(errorDiv);
+                    console.error("Error:", error);
+                });
+                
+                inputField.value = "";
             }
         });
     </script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 
