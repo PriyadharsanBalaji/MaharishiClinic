@@ -40,7 +40,6 @@
         }
         .navbar a:hover {
             background-color: rgba(255, 255, 255, 0.3);
-            color: #ffffff;
             transform: scale(1.1);
         }
         section {
@@ -50,7 +49,6 @@
         }
         #home {
             background: rgba(0, 0, 0, 0.7);
-            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -59,36 +57,35 @@
         #about, #updates, #testimonials {
             background: rgba(30, 30, 30, 0.8);
         }
-        #chat-container {
+        /* Chatbot styles */
+        #chatbot-container {
             position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.2);
-        }
-        #chat-input {
-            flex: 1;
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        #send-btn {
-            background: #007bff;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #007bff;
             color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             cursor: pointer;
-            margin-left: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
-        #chat-messages {
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 10px;
+        #chatbot-container:hover {
+            background-color: #0056b3;
+        }
+        #chatbot-frame {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
         }
     </style>
 </head>
@@ -126,83 +123,25 @@
             <p>Here's what our patients have to say about us.</p>
         </div>
     </section>
-
-    <!-- Chat UI -->
-    <div id="chat-container">
-        <div id="chat-messages"></div>
-        <input type="text" id="chat-input" placeholder="Ask something...">
-        <button id="send-btn">Send</button>
-    </div>
-
     <footer class="bg-dark text-white text-center py-3">
         <p>&copy; 2025 Maharishi Nursing Home, Dharapuram</p>
     </footer>
-
+    
+    <div id="chatbot-container">💬</div>
+    <iframe id="chatbot-frame" src="https://www.langflow.site/embed/YOUR_LANGFLOW_ID"></iframe>
+    
     <script>
-        class LangflowClient {
-            constructor(baseURL, applicationToken) {
-                this.baseURL = baseURL;
-                this.applicationToken = applicationToken;
-            }
-
-            async post(endpoint, body) {
-                const headers = {
-                    "Authorization": `Bearer ${this.applicationToken}`,
-                    "Content-Type": "application/json"
-                };
-                const url = `${this.baseURL}${endpoint}`;
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: headers,
-                        body: JSON.stringify(body)
-                    });
-                    return await response.json();
-                } catch (error) {
-                    console.error('Request Error:', error);
-                }
-            }
-
-            async initiateSession(flowId, langflowId, inputValue) {
-                const endpoint = `/lf/${langflowId}/api/v1/run/${flowId}`;
-                return this.post(endpoint, { input_value: inputValue });
-            }
-        }
-
-        const flowIdOrName = 'b2887fb5-1333-41c0-8afb-3f61ead5438e';
-        const langflowId = '8b66a209-6ea6-474d-ba58-d36856b1aff0';
-        const applicationToken = 'AstraCS:RlzpfdjlcvhbjhySCFLsPMOs:812f8c112c3de29d5a144b6c358f643ede9fd0c41ecbce03680e69fd2d08b069';
-        const langflowClient = new LangflowClient('https://api.langflow.astra.datastax.com', applicationToken);
-
-        document.getElementById("send-btn").addEventListener("click", async function () {
-            const inputField = document.getElementById("chat-input");
-            const message = inputField.value.trim();
-            if (!message) return;
-
-            // Display user message
-            const chatBox = document.getElementById("chat-messages");
-            const userMessage = document.createElement("p");
-            userMessage.innerHTML = `<strong>You:</strong> ${message}`;
-            chatBox.appendChild(userMessage);
-
-            // Clear input field
-            inputField.value = "";
-
-            // Get response from Langflow API
-            try {
-                const response = await langflowClient.initiateSession(flowIdOrName, langflowId, message);
-                if (response && response.outputs) {
-                    const aiResponse = response.outputs[0].outputs[0].outputs.message.text;
-                    const botMessage = document.createElement("p");
-                    botMessage.innerHTML = `<strong>Bot:</strong> ${aiResponse}`;
-                    chatBox.appendChild(botMessage);
-                }
-            } catch (error) {
-                console.error("Error fetching response:", error);
+        document.getElementById('chatbot-container').addEventListener('click', function() {
+            const frame = document.getElementById('chatbot-frame');
+            if (frame.style.display === 'none' || frame.style.display === '') {
+                frame.style.display = 'block';
+            } else {
+                frame.style.display = 'none';
             }
         });
     </script>
-
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
