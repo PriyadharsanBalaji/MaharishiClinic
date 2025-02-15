@@ -40,6 +40,7 @@
         }
         .navbar a:hover {
             background-color: rgba(255, 255, 255, 0.3);
+            color: #ffffff;
             transform: scale(1.1);
         }
         section {
@@ -49,6 +50,7 @@
         }
         #home {
             background: rgba(0, 0, 0, 0.7);
+            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -56,44 +58,6 @@
         }
         #about, #updates, #testimonials {
             background: rgba(30, 30, 30, 0.8);
-        }
-        /* Chatbot Styles */
-        #chatbot-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 20px;
-        }
-        #chatbot-container {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 350px;
-            height: 500px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-            display: none;
-            overflow: hidden;
-            padding: 10px;
-        }
-        #chatbot-messages {
-            height: 80%;
-            overflow-y: auto;
-            border-bottom: 1px solid #ccc;
-            padding: 10px;
-        }
-        #chatbot-input {
-            width: 100%;
-            padding: 5px;
-            border: none;
-            border-top: 1px solid #ccc;
         }
     </style>
 </head>
@@ -134,59 +98,57 @@
     <footer class="bg-dark text-white text-center py-3">
         <p>&copy; 2025 Maharishi Nursing Home, Dharapuram</p>
     </footer>
-    
-    <!-- Chatbot -->
-    <button id="chatbot-button">💬</button>
-    <div id="chatbot-container">
-        <div id="chatbot-messages"></div>
-        <input type="text" id="chatbot-input" placeholder="Type a message..." />
-    </div>
-    
     <script>
-        document.getElementById('chatbot-button').addEventListener('click', function() {
-            var chatbot = document.getElementById('chatbot-container');
-            chatbot.style.display = chatbot.style.display === 'none' ? 'block' : 'none';
-        });
+        const canvas = document.getElementById('background');
+        const renderer = new THREE.WebGLRenderer({ canvas });
+        renderer.setSize(window.innerWidth, window.innerHeight);
 
-        document.getElementById('chatbot-input').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                let inputField = document.getElementById('chatbot-input');
-                let userMessage = inputField.value;
-                if (!userMessage.trim()) return;
-                
-                let messagesDiv = document.getElementById('chatbot-messages');
-                let userDiv = document.createElement('div');
-                userDiv.textContent = "You: " + userMessage;
-                messagesDiv.appendChild(userDiv);
-                
-                let loadingDiv = document.createElement('div');
-                loadingDiv.textContent = "Bot: Thinking...";
-                messagesDiv.appendChild(loadingDiv);
-                
-                fetch("https://your-langflow-api.com/chat", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: userMessage })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    messagesDiv.removeChild(loadingDiv);
-                    let botDiv = document.createElement('div');
-                    botDiv.textContent = "Bot: " + data.response;
-                    messagesDiv.appendChild(botDiv);
-                })
-                .catch(error => {
-                    messagesDiv.removeChild(loadingDiv);
-                    let errorDiv = document.createElement('div');
-                    errorDiv.textContent = "Bot: Error connecting to API";
-                    messagesDiv.appendChild(errorDiv);
-                    console.error("Error:", error);
-                });
-                
-                inputField.value = "";
-            }
-        });
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        const geometry = new THREE.SphereGeometry(0.1, 32, 32);
+        const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+
+        const light = new THREE.PointLight(0xffffff, 1);
+        light.position.set(5, 5, 5);
+        scene.add(light);
+
+        const objects = [];
+        for (let i = 0; i < 50; i++) {
+            const obj = new THREE.Mesh(geometry, material);
+            obj.position.set(Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5);
+            obj.velocity = {
+                x: (Math.random() - 0.5) * 0.02,
+                y: (Math.random() - 0.5) * 0.02,
+                z: (Math.random() - 0.5) * 0.02
+            };
+            scene.add(obj);
+            objects.push(obj);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            objects.forEach(obj => {
+                obj.rotation.x += 0.01;
+                obj.rotation.y += 0.01;
+
+                obj.position.x += obj.velocity.x;
+                obj.position.y += obj.velocity.y;
+                obj.position.z += obj.velocity.z;
+
+                if (Math.abs(obj.position.x) > 5) obj.velocity.x = -obj.velocity.x;
+                if (Math.abs(obj.position.y) > 5) obj.velocity.y = -obj.velocity.y;
+                if (Math.abs(obj.position.z) > 5) obj.velocity.z = -obj.velocity.z;
+            });
+            renderer.render(scene, camera);
+        }
+
+        animate();
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+	<script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="ySTVqhOina6hU200nppuF";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
 </body>
 </html>
-
